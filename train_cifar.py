@@ -199,9 +199,15 @@ def train(epoch, model, criterion, optimizer, trainloader, clip):
 
         # 🔽 GPUメモリ使用量を定期的に表示
         if i % 50 == 0:
-            gpu_alloc = torch.cuda.memory_allocated() / 1024**2
-            gpu_reserved = torch.cuda.memory_reserved() / 1024**2
-            print(f"[gpu_mem] epoch={epoch} iter={i} allocated={gpu_alloc:.1f}MB reserved={gpu_reserved:.1f}MB")
+            device = next(model.parameters()).device
+            torch.cuda.synchronize(device)  # 非同期完了を待つ
+
+            alloc = torch.cuda.memory_allocated(device) / 1024**2
+            reserved = torch.cuda.memory_reserved(device) / 1024**2
+            peak = torch.cuda.max_memory_allocated(device) / 1024**2
+
+            print(f"[gpu_mem] epoch={epoch} iter={i} "
+                f"allocated={alloc:.3f}MB reserved={reserved:.3f}MB peak={peak:.3f}MB")
 
     return train_loss, acc
 
