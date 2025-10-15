@@ -197,6 +197,12 @@ def train(epoch, model, criterion, optimizer, trainloader, clip):
         t.set_postfix(loss='{:.3f}'.format(train_loss/(i+1)).ljust(3),
                       acc='{:2.1f}%'.format(acc).ljust(6))
 
+        # 🔽 GPUメモリ使用量を定期的に表示
+        if i % 50 == 0:
+            gpu_alloc = torch.cuda.memory_allocated() / 1024**2
+            gpu_reserved = torch.cuda.memory_reserved() / 1024**2
+            print(f"[gpu_mem] epoch={epoch} iter={i} allocated={gpu_alloc:.1f}MB reserved={gpu_reserved:.1f}MB")
+
     return train_loss, acc
 
 
